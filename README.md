@@ -5,7 +5,7 @@ tags: arch, linux
 ---
 
 装机必备：(防健忘):
-- kdenliv
+- kdenlive
 - gimp
 - mpv
 - SimpleScreenRecorder
@@ -31,7 +31,6 @@ tags: arch, linux
 		- [2.3 扫描当前设备下的WiFi列表并得到所有WIFI的名字](#23-扫描当前设备下的wifi列表并得到所有wifi的名字)
 		- [2.4 使用`wpa_supplicant`连接网络并后台运行](#24-使用wpa_supplicant连接网络并后台运行)
 		- [2.5 动态分配IP地址](#25-动态分配ip地址)
-		- [2.6 测试](#26-测试)
 	* [3. 更正系统时间](#3-更正系统时间)
 	* [4. 硬盘分区](#4-硬盘分区)
 		- [4.1 查看现有的磁盘](#41-查看现有的磁盘)
@@ -138,12 +137,6 @@ $ dhcpcd &
 
 ```bash
 $ ping baidu.com
-```
-
-##$$$$$$$$$$$$$$ 3. 更正系统时间
-
-```bash
-$ timedatectl set-ntp true
 ```
 
 ## 4. 硬盘分区
