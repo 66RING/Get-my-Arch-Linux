@@ -1,5 +1,24 @@
-# <center>Get my Arch Linux</center>
+---
+title: Get my Arch Linux
+date: 2019-12-25
+tags: arch, linux
+---
 
+装机必备：(防健忘):
+- kdenliv
+- gimp
+- mpv
+- SimpleScreenRecorder
+- neofetch
+- guvcview
+    - 色相头捕获
+- pavucontrol
+    - pulseaudio volume controler
+- network-manager-applet
+
+
+
+# <center>Get my Arch Linux</center>
 
 <!-- TOC GFM -->
 
@@ -48,39 +67,13 @@
 	* [5. 切换到低权限的用户](#5-切换到低权限的用户)
 	* [6. 安装`Xorg`](#6-安装xorg)
 	* [7. 安装桌面环境](#7-安装桌面环境)
-	* [8. (可选)安装`lightdm`](#8-可选安装lightdm)
 + [软件安装](#软件安装)
 	* [终端用](#终端用)
-		- [`yay`](#yay)
-		- [`ranger`](#ranger)
-		- [`neofetch`](#neofetch)
-		- [`htop`](#htop)
-		- [`fish`](#fish)
-	* [`openssh`](#openssh)
 	* [输入法](#输入法)
-		- [`fcitx`](#fcitx)
 	* [浏览器](#浏览器)
-		- [`Chromium`](#chromium)
 	* [录屏相关](#录屏相关)
-		- [`SimpleScreenRecorder`](#simplescreenrecorder)
-		- [`Screenkey`](#screenkey)
 	* [视频编辑](#视频编辑)
-		- [`Kdenlive`](#kdenlive)
 	* [图片编辑](#图片编辑)
-		- [`Gimp`](#gimp)
-	* [办公套件](#办公套件)
-		- [`Libreoffice`](#libreoffice)
-	* [游戏](#游戏)
-		- [`Steam`](#steam)
-	* [视频播放](#视频播放)
-		- [`Vlc`](#vlc)
-	* [其他](#其他)
-		- [`Gparted`](#gparted)
-		- [`Virtualbox`](#virtualbox)
-		- [`AppImageLauncher`](#appimagelauncher)
-+ [软件安装出现的问题汇总](#软件安装出现的问题汇总)
-	* [搜狗输入法不显示候选框](#搜狗输入法不显示候选框)
-
 <!-- /TOC -->
 
 # 写在前面
@@ -95,7 +88,6 @@
 
 - 这里是我自己安装过程的记录。
 
-- 我在安装时使用的编辑器是`Nano`，如果你使用的是`Vim`等编辑器，阅读下面内容时请自行替换。
 
 # 安装
 
@@ -106,7 +98,7 @@
 - 这里将其设置为：
 
   ```bash
-  $ setfont /usr/share/kbd/consolefonts/LatGrkCyr-12*22.psfz.gz
+  $ setfont /usr/share/kbd/consolefonts/LatGrkCyr-12*22.psfu.gz
   ```
 
 ## 2. 连接网络
@@ -148,7 +140,7 @@ $ dhcpcd &
 $ ping baidu.com
 ```
 
-## 3. 更正系统时间
+##$$$$$$$$$$$$$$ 3. 更正系统时间
 
 ```bash
 $ timedatectl set-ntp true
@@ -156,9 +148,10 @@ $ timedatectl set-ntp true
 
 ## 4. 硬盘分区
 
-- 这里我采用的启动方式是`UEFI + GPT`，其他的启动方式请参考[下文](#2-关于grub和分区)。
 
 ### 4.1 查看现有的磁盘
+
+- 这里我采用的启动方式是`UEFI + GPT`
 
 ```bash
 $ fdisk -l
@@ -167,14 +160,15 @@ $ fdisk -l
 ### 4.2 进入磁盘编辑
 
 ```bash
-$ fdisk /dev/sda   # /dev/sda为磁盘设备的位置
-$ g   # 清除原有分区并创建一个GPT分区表
-$ n   # 创建一个新的分区/dev/sda1 -- 引导分区
+$ fdisk /dev/sda   # /dev/sda为做分区的磁盘
+$ p   # 打印分区信息
+$ g   # 创建一个新的GPT分区表
+$ n   # 创建一个新的分区编号1 -- 引导分区
       # 接下来选择分区的编号、起始位置、终止位置（分区大小，可用例如“+300M”的形式）
-$ n   # 创建一个新的分区/dev/sda3 -- SWAP分区（用于保存内存中的文件以及作为内存的扩展，此
+$ n   # 创建一个新的分区编号3 -- SWAP分区（用于保存内存中的文件以及作为内存的扩展，此
       # 分区不需要太大）
       # 这里我大小设置为1G
-$ n   # 创建一个新的分区/dev/sda2 -- 主分区
+$ n   # 创建一个新的分区编号2 -- 主分区
       # 大小我设置为磁盘的所有剩余空间
 $ p   # 查看待写入的分区结果
 $ w   # 写入
@@ -183,9 +177,11 @@ $ w   # 写入
 ### 4.3 定义分区格式
 
 ```bash
-$ mkfs.fat -F32 /dev/sda1   # /dev/sda1为引导分区
-$ mkfs.ext4 /dev/sda2       # /dev/sda2为主分区
-$ mkswap /dev/sda3          # /dev/sda3为SWAP分区
+$ mkfs.fat -F32 /dev/sda1(分区名)   # /dev/sda1为引导分区
+                                    # 引导分区格式必须的fat
+$ mkfs.ext4 /dev/sda2               # /dev/sda2为主分区
+                                    # linux文件系统格式一般是ext4，当然也有其他可用的格式
+$ mkswap /dev/sda3                  # 制作swap
 ```
 
 ### 4.4 打开`SWAP`
@@ -197,18 +193,14 @@ $ swapon /dev/sda3
 ## 5. 配置`pacman`
 
 ```bash
-$ nano /etc/pacman.conf
+$ vim /etc/pacman.conf
 ```
 
-- 去掉注释：
+- 去掉注释：`Color`
   
-- `Color`
-  
-- `Arch Linux`软件源列表：`/etc/pacman.d/mirrorlist`
-
-- 寻找中国的服务器，将它移动到`mirrorlist`的最顶上，保存退出。
-
-- 我这里使用的是清华的源：
+- 修改软件源`/etc/pacman.d/mirrorlist`
+    - 寻找中国的服务器，将它移动到`mirrorlist`的最顶上，保存退出。
+    - 如：
 
   ```
   ## China
@@ -223,12 +215,14 @@ $ nano /etc/pacman.conf
 $ fdisk -l
 ```
 
-### 6.2 挂载磁盘
+我们需要把系统引导安装在系统引导分区，系统主要内容安装在主分区
+
+### 6.2 挂载磁盘到应该挂载的地方
 
 ```bash
 $ mount /dev/sda2 /mnt        # 挂载主分区
-$ mkdir /mnt/boot             # 创建启动分区在Live CD上的目录
-$ mount /dev/sda1 /mnt/boot   # 挂载启动分区
+$ mkdir /mnt/boot             # 用于挂载引导
+$ mount /dev/sda1 /mnt/boot   # 挂载引导分区
 ```
 
 ### 6.3 开始安装
@@ -248,7 +242,7 @@ $ genfstab -U /mnt >> /mnt/etc/fstab
 ### 7.1 进入`arch-chroot`
 
 ```bash
-$ arch-chroot /mnt   # /mnt为安装好的系统的主分区在Live CD上的挂载位置
+$ arch-chroot /mnt   
 ```
 
 ### 7.2  设置时区和时间
@@ -262,7 +256,7 @@ $ hwclock --systohc                                         # 同步时间
 
 ```bash
 $ exit                       # 先退出arch-chroot
-$ nano /mnt/etc/locale.gen   # 编辑本地化文件
+$ vim /mnt/etc/locale.gen    # 生成
                              # 去掉“en_US.UTF-8 UTF-8”前面的注释，保存退出         
 ```
 
@@ -277,25 +271,25 @@ $ locale-gen   # 生成本地化
 
 ```bash
 $ exit                        # 退出arch-chroot
-$ nano /mnt/etc/locale.conf   # 编辑本地化的配置文件
+$ vim /mnt/etc/locale.conf   # 编辑本地化的配置文件
                               # 在其中输入“LANG=en_US.UTF-8”（将系统设置为英文），保存退出。
 ```
 
 ### 7.6 (可选)设置键盘布局和键位绑定
 
 ```bash
-$ nano /mnt/etc/vconsole.conf
+$ vim /mnt/etc/vconsole.conf
 ```
 
 ### 7.7 编辑网络相关的文件
 
 ```bash
-$ nano /mnt/etc/hostname   # 编辑主机名称
+$ vim /mnt/etc/hostname   # 编辑主机名称
                            # 我将其设置为niklaus，保存退出
-$ nano /mnt/etc/hosts      # 编辑域名与IP地址的对应
+$ vim /mnt/etc/hosts      # 编辑域名与IP地址的对应
                            # 127.0.0.1   localhost
                            # ::1         localhost
-                           # 127.0.1.1   niklaus.localdomain   niklaus
+                           # 127.0.1.1   ring.localdomain   ring
 ```
 
 ### 7.8 更改`root`用户密码
@@ -310,7 +304,7 @@ $ passwd
 ```bash
 $ pacman -S grub efibootmgr intel-ucode os-prober
 # intel-ucode   厂家更新CPU驱动用，如果是AMD的显卡，则安装amd-ucode
-# os-probe      用来寻找电脑中其他操作系统
+# os-prober      用来寻找电脑中其他操作系统
 $ mkdir /boot/grub
 $ grub-mkconfig > /boot/grub/grub.cfg                      # 生成grub配置文件
 $ uname -m                                                 # 查看系统架构
@@ -320,12 +314,12 @@ $ grub-install --target=x86_64-efi --efi-directory=/boot   # 根据自己的系�
 ### 7.10 安装基础工具
 
 ```bash
-$ pacman -S zsh nano vim wpa_supplicant dhcpcd
-# zsh              shell
-# nano             编辑器
-# vim              编辑器
-# wpa_supplicant   上网工具
-# dhcpcd           动态分配IP地址工具
+$ pacman -S zsh neovim wpa_supplicant dhcpcd network-manager-applet
+# zsh                    shell
+# neovim                 编辑器
+# wpa_supplicant         上网工具
+# dhcpcd                 动态分配IP地址工具
+# network-manager-applet 网络网络连接管理器
 ```
 
 ### 7.11 重启，完成安装
@@ -335,201 +329,6 @@ $ exit                            # 退出arch-chroot
 $ killall wpa_supplicant dhcpcd   # 终止掉网络相关的进程
 $ reboot                          # 重启，电脑黑屏后就可以拔掉Live CD了
 ```
-
-# 安装Arch Linux中出现问题的汇总
-
-## 1. 分区时出现警告：逻辑分区和物理分区不对齐
-
-- 可能原因：SSD或者是HDD上原来装过Windows，则硬盘最开始的32M空间（图形界面下使用Gparted可以看到）是默认空白的。这样就会导致分区的不对齐。但其实对于SSD来说只是影响到速度，使用还是比较正常的
-
-- 解决方法：
-
-  - （未试验）使用`shred`命令彻底清洗磁盘，但耗时一般较长。
-  
-    ```bash
-    $ shred -v /dev/sda
-    ```
-
-## 2. 关于`grub`和分区
-
-- Arch Linux支持三种启动方式，但启动方式分区和`grub`的安装略有不同。
-
-  1. `UEFI + GPT`
-
-     这是我采用的方式。具体对于`grub`的操作见[上文](#79-安装grub相关)。
-
-     较新的主板推荐采用这种方式。
-
-  2. `BIOS + MBR`
-
-     这是较老的主板支持的分区方式，但在某些新的主板上已经不支持了。值得注意的是这种分区方式支持的硬盘是小于`2T`的。
-
-  3. `BIOS + GPT`
-
-     个人感觉这种分区方法的好处是方便后续在这块硬盘上安装别的Linux发行版并提高设备的兼容性。因为最好保证一块硬盘的分区表前后都是一致的，否则会出现兼容性的问题（这是我的猜想，有错误还请指正）。
-
-- 三种分区方式具体如下图：
-
-  ![image-20200211110852980](README.assets/image-20200211110852980.png)
-
-- 三种分区方式及后续挂载方式等的完整命令示例：
-
-  - `UEFI + GPT`
-
-    ```bash
-    # 进入磁盘编辑
-    $ fdisk /dev/sda   # /dev/sda为磁盘设备的位置
-    $ g   # 清除原有分区并创建一个GPT分区表
-    $ n   # 创建一个新的分区/dev/sda1 -- 引导分区
-    $ n   # 创建一个新的分区/dev/sda3 -- SWAP分区（用于保存内存中的文件以及作为内存的扩展，此
-          # 分区不需要太大）
-          # 这里我大小设置为1G
-    $ n   # 创建一个新的分区/dev/sda2 -- 主分区
-          # 大小我设置为磁盘的所有剩余空间
-    $ p   # 查看待写入的分区结果
-    $ w   # 写入
-    
-    # 制作文件系统
-    # 这里会出现一些关于磁盘性能的警告，不用特别在意。
-    $ mkfs.fat -F32 /dev/sda1   # /dev/sda1为引导分区，制作为“fat32”格式
-    $ mkfs.ext4 /dev/sda2       # /dev/sda2为主分区，制作为“ext4”格式
-    $ mkswap /dev/sda3          # /dev/sda3为SWAP分区
-    
-    # 打开swap
-    $ swapon /dev/sda3
-    
-    # 挂载
-    $ mount /dev/sda2 /mnt        # 挂载主分区
-    $ mkdir /mnt/boot             # 创建启动分区在Live CD上的目录
-    $ mount /dev/sda1 /mnt/boot   # 挂载启动分区
-    
-    # 安装Linux所需的最基础的软件、框架等
-    $ pacstrap /mnt base linux linux-firmware
-    
-    # 生成挂载文件
-    $ genfstab -U /mnt >> /mnt/etc/fstab
-    
-    # 使用arch-chroot
-    $ arch-chroot /mnt
-    
-    # 安装grub相关
-    $ pacman -S grub efibootmgr intel-ucode os-prober
-    # intel-ucode   厂家更新CPU驱动用，如果是AMD的显卡，则安装amd-ucode
-    # os-probe      用来寻找电脑中其他操作系统
-    $ mkdir /boot/grub
-    $ grub-mkconfig > /boot/grub/grub.cfg                      # 生成grub配置文件
-    $ uname -m                                                 # 查看系统架构
-    $ grub-install --target=x86_64-efi --efi-directory=/boot   # 根据自己的系统架构安装                                                            # grub,我这里系统架构是                                                            # x86_64，所以选择安装                                                            # x86_64-efi
-    ```
-
-  - `BIOS + MBR`
-
-    ```bash
-    # 进入磁盘编辑
-    $ fdisk /dev/sda   # /dev/sda为磁盘设备的位置
-    $ o   # 清除原有分区并创建一个MBR分区表
-    $ n   # 创建一个新的分区/dev/sda1 -- 主分区
-    $ n   # 创建一个新的分区/dev/sda2 -- SWAP分区（用于保存内存中的文件以及作为内存的扩展，此
-          # 分区不需要太大）
-          # 这里我大小设置为1G
-    $ n   # 创建一个新的分区/dev/sda3 -- /home分区
-          # 大小我设置为磁盘的所有剩余空间
-    $ p   # 查看待写入的分区结果
-    $ w   # 写入
-    
-    # 制作文件系统
-    # 这里会出现一些关于磁盘性能的警告，不用特别在意。
-    $ mkfs.ext4 /dev/sda1   # /dev/sda1为主分区，制作为“ext4”格式
-    $ mkswap /dev/sda2      # /dev/sda2为SWAP分区
-    $ mkfs.ext4 /dev/sda3   # /dev/sda3为/home分区，制作为“ext4”格式
-    
-    # 打开swap
-    $ swapon /dev/sda2
-    
-    # 挂载
-    $ mount /dev/sda1 /mnt        # 挂载主分区
-    $ mkdir /mnt/home             # 创建/home分区在Live CD上的目录
-    $ mount /dev/sda3 /mnt/home   # 挂载/home分区
-    
-    # 安装Linux所需的最基础的软件、框架等
-    $ pacstrap /mnt base linux linux-firmware
-    
-    # 生成挂载文件
-    $ genfstab -U /mnt >> /mnt/etc/fstab
-    
-    # 使用arch-chroot
-    $ arch-chroot /mnt
-    
-    # 安装grub相关
-    $ pacman -S grub intel-ucode os-prober
-    # intel-ucode   厂家更新CPU驱动用，如果是AMD的显卡，则安装amd-ucode
-    # os-probe      用来寻找电脑中其他操作系统
-    $ mkdir /boot/grub
-    $ grub-mkconfig > /boot/grub/grub.cfg      # 生成grub配置文件
-    $ grub-install --target=i386-pc /dev/sda   # 敲入这条命令即可，使用BIOS的在grub-                                              # install时--target参数统一是i386-pc
-                                               # 值得注意的是，这里grub安装的位置选择的直                                            # 接是硬盘/dev/sda，而不是任何一个分区
-    ```
-
-  - `BIOS + GPT`
-
-    ```bash
-    # 进入磁盘编辑
-    $ fdisk /dev/sda   # /dev/sda为磁盘设备的位置
-    $ g   # 清除原有分区并创建一个GPT分区表
-    $ n   # 创建一个新的分区/dev/sda1 -- 空白分区，大小为1M
-    $ n   # 创建一个新的分区/dev/sda2 -- 主分区
-    $ n   # 创建一个新的分区/dev/sda3 -- SWAP分区（用于保存内存中的文件以及作为内存的扩展，此
-          # 分区不需要太大）
-          # 这里我大小设置为1G
-    $ n   # 创建一个新的分区/dev/sda4 -- /home分区
-          # 大小我设置为磁盘的所有剩余空间
-    $ p   # 查看待写入的分区结果
-    $ w   # 写入
-    
-    # 制作文件系统
-    # 这里会出现一些关于磁盘性能的警告，不用特别在意。
-    # 注意这里的/dev/sda1空白分区不需要挂载，也不需要制作文件系统。
-    $ mkfs.ext4 /dev/sda2   # /dev/sda2为主分区，制作为“ext4”格式
-    $ mkswap /dev/sda3      # /dev/sda2为SWAP分区
-    $ mkfs.ext4 /dev/sda4   # /dev/sda4为/home分区，制作为“ext4”格式
-    
-    # 打开swap
-    $ swapon /dev/sda3
-    
-    # 挂载
-    $ mount /dev/sda2 /mnt        # 挂载主分区
-    $ mkdir /mnt/home             # 创建/home分区在Live CD上的目录
-    $ mount /dev/sda4 /mnt/home   # 挂载/home分区
-    
-    # 安装Linux所需的最基础的软件、框架等
-    $ pacstrap /mnt base linux linux-firmware
-    
-    # 生成挂载文件
-    $ genfstab -U /mnt >> /mnt/etc/fstab
-    
-    # 使用arch-chroot
-    $ arch-chroot /mnt
-    
-    # 安装grub相关
-    $ pacman -S grub intel-ucode os-prober
-    # intel-ucode   厂家更新CPU驱动用，如果是AMD的显卡，则安装amd-ucode
-    # os-probe      用来寻找电脑中其他操作系统
-    $ mkdir /boot/grub
-    $ grub-mkconfig > /boot/grub/grub.cfg              # 生成grub配置文件
-    $ grub-install --force --target=i386-pc /dev/sda   # 敲入这条命令即可，使用BIOS的在                                                    # grub-install时--target参数                                                    # 统一是i386-pc
-                                                       # 这里也需要使用--force参数强制                                                    # 安装grub，因为无参数情况下的两                                                    # 个警告会使得grub安装失败
-                                                       # 值得注意的是，这里grub安装的位                                                    # 置选择的直接是硬盘/dev/sda，而                                                    # 不是任何一个分区
-    ```
-
-    
-
-  - 如果还有问题，请移步`Arch Wiki`：
-
-    <https://wiki.archlinux.org/index.php/Partitioning#GUID_Partition_Table>
-
-    <https://wiki.archlinux.org/index.php/GRUB>
-
-    <https://wiki.archlinux.org/index.php/Partitioning>
 
 # 初步配置
 
@@ -550,23 +349,23 @@ $ pacman -S base-devel   # sudo、编译器等等的基础工具
 ## 3. 添加用户
 
 ```bash
-$ useradd -m -G wheel niklaus   # -m        创建家目录
+$ useradd -m -G wheel ring      # -m        创建家目录
                                 # -G        用户所属的组
-                                # niklaus   我的用户名
-$ passwd niklaus   # 修改密码
+                                # ring      我的用户名
+$ passwd ring   # 修改密码
 ```
 
 ## 4. 修改用户权限
 
 ```bash
-$ nano /etc/sudoers   # 编辑sudoer file
+$ vim /etc/sudoers    # 编辑sudoer file
                       # 去掉“%wheel ALL=(ALL) ALL”前面的注释，保存退出
 ```
 
 ## 5. 切换到低权限的用户
 
 ```bash
-$ exit# 退出root用户，并登陆niklaus用户
+$ exit# 退出root用户，并登陆ring用户
 ```
 
 ## 6. 安装`Xorg`
@@ -577,17 +376,6 @@ $ sudo pacman -S xorg   # 图形界面的服务器
 
 ## 7. 安装桌面环境
 
-- 这里我选择的桌面环境是`LXDE`。
-
-- ```bash
-  $ sudo pacman -S lxde
-  ```
-
-- 若选择最小安装，则为：
-
-  ```bash
-  $ sudo pacman -S lxde-common lxsession openbox
-  ```
 
 ## 8. (可选)安装`lightdm`
 
@@ -646,22 +434,14 @@ $ sudo pacman -S xorg   # 图形界面的服务器
   $ sudo pacman -S neofetch
   ```
 
-### `htop`
+### `gotop`
 
 - 系统资源占用查看。
 
 - ```bash
   $ sudo pacman -S htop
   ```
-  
 
-### `fish`
-
-- shell
-
-- ```bash
-  $ sudo pacman -S fish
-  ```
 
 ## `openssh`
 
@@ -675,31 +455,7 @@ $ sudo pacman -S openssh
 
 ## 输入法
 
-### `fcitx`
-
-- 输入法管理器。
-
-- ```bash
-  sudo pacman -S fcitx fcitx-im fcitx-configtool
-  ```
-
-- 中文字体、emoji等的安装：
-
-  ```bash
-  $ yay -S ttf-linux-libertine ttf-inconsolata ttf-joypixels ttf-twemoji-color noto-fonts-emoji ttf-liberation ttf-droid   # Emoji
-  
-  $ yay -S wqy-bitmapfont wqy-microhei wqy-microhei-lite wqy-zenhei adobe-source-han-mono-cn-fonts adobe-source-han-sans-cn-fonts adobe-source-han-serif-cn-fonts   # 中文字体
-  ```
-
 ## 浏览器
-
-### `Chromium`
-
-- 开源、支持多扩展的浏览器。
-
-- ```bash
-  $ sudo pacman -S chromium
-  ```
 
 ## 录屏相关
 
@@ -748,62 +504,6 @@ $ sudo pacman -S openssh
   $ sudo pacman -S gimp
   ```
 
-## 办公套件
-
-### `Libreoffice`
-
-- Office三件套。
-
-- ```bash
-  $ sudo pacman -S libreoffice
-  ```
-
-## 游戏
-
-### `Steam`
-
-- 游戏商店。
-
-- ```bash
-  $ sudo pacman -S steam
-  ```
-
-
-## 视频播放
-
-### `Vlc`
-
-- 视频播放器。
-
-- ```bash
-  $ sudo pacman -S vlc
-  ```
-
-## 其他
-
-### `Gparted`
-
-- 有图形界面的磁盘无损分区工具。
-
-- ```bash
-  $ sudo pacman -S gparted
-  ```
-
-### `Virtualbox`
-
-- 开源的虚拟机。
-
-- ```bash
-  $ sudo pacman -S virtualbox
-  ```
-
-### `AppImageLauncher`
-
--  `.appimage`文件的启动器。
-
-- ```bash
-  $ sudo pacman -S appimagelauncher
-  ```
 
 ## `Tlp`
 
