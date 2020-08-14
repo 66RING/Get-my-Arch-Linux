@@ -1,10 +1,6 @@
----
-title: Get my Arch Linux
-date: 2019-12-25
-tags: arch, linux
----
 
 装机必备：(防健忘):
+- qrcp: 电脑手机文件互传
 - kdenlive
 - gimp
 - mpv

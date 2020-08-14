@@ -35,7 +35,7 @@ mkdir /mnt/boot
 mount $diskmain /mnt      
 mount $diskboot /mnt/boot 
 
-pacstrap /mnt base linux linux-firmware
+pacstrap /mnt base base-devel linux linux-firmware
 
 genfstab -U /mnt >> /mnt/etc/fstab
 
